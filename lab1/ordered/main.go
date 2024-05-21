@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
+	"time"
 )
 
-const SIZE = 10
+const SIZE = 100000
 
 type ArrayOrdered struct {
 	array [SIZE]int
@@ -15,13 +16,14 @@ type ArrayOrdered struct {
 func (a *ArrayOrdered) fillArray() {
 	tmpArray := make([]int, SIZE)
 	for i := 0; i < SIZE; i++ {
-		tmpArray[i] = rand.Intn(100)
+		tmpArray[i] = rand.Intn(1000000)
 	}
 	sort.Ints(tmpArray)
 	copy(a.array[:], tmpArray)
 }
 
-func (a *ArrayOrdered) searchElement(element int) (int, error) {
+func (a *ArrayOrdered) searchElement(element int) (int, string, error) {
+	start := time.Now()
 	l := 0
 	r := len(a.array) - 1
 	mid := 0
@@ -33,13 +35,18 @@ func (a *ArrayOrdered) searchElement(element int) (int, error) {
 			l = mid + 1
 		}
 	}
+	elapsed := time.Since(start)
+	seconds := elapsed.Milliseconds()
+	secondsString := fmt.Sprintf("%d", seconds)
+
 	if l != -1 {
-		return l, nil
+		return l, secondsString, nil
 	}
-	return -1, fmt.Errorf("в массиве нет такого элемента: %d", element)
+	return -1, secondsString, fmt.Errorf("в массиве нет такого элемента: %d", element)
 }
 
-func (a *ArrayOrdered) insertElement(element int) error {
+func (a *ArrayOrdered) insertElement(element int) (string, error) {
+	start := time.Now()
 	idx := -1
 	for i := range a.array {
 		if a.array[i] < element {
@@ -50,26 +57,33 @@ func (a *ArrayOrdered) insertElement(element int) error {
 		}
 	}
 	if idx == -1 {
-		return fmt.Errorf("вставка данного элемента невозможна: %d", element)
+		return "", fmt.Errorf("вставка данного элемента невозможна: %d", element)
 	}
 
 	for i := len(a.array) - 1; i > idx; i-- {
 		a.array[i] = a.array[i-1]
 	}
 	a.array[idx] = element
-	return nil
+	elapsed := time.Since(start)
+	seconds := elapsed.Milliseconds()
+	secondsString := fmt.Sprintf("%d", seconds)
+	return secondsString, nil
 }
 
-func (a *ArrayOrdered) deleteElement(element int) error {
-	idx, err := a.searchElement(element)
+func (a *ArrayOrdered) deleteElement(element int) (string, error) {
+	start := time.Now()
+	idx, _, err := a.searchElement(element)
 	if err != nil {
-		return err
+		return "", err
 	}
 	for i := idx; i < len(a.array)-1; i++ {
 		a.array[i] = a.array[i+1]
 	}
 	a.array[len(a.array)-1] = 0
-	return nil
+	elapsed := time.Since(start)
+	seconds := elapsed.Milliseconds()
+	secondsString := fmt.Sprintf("%d", seconds)
+	return secondsString, nil
 }
 func main() {
 	arrays := ArrayOrdered{}
@@ -84,32 +98,35 @@ func main() {
 			fmt.Println("Введите элемент для поиска")
 			var element int
 			fmt.Scan(&element)
-			idx, err := arrays.searchElement(element)
+			idx, elapsed, err := arrays.searchElement(element)
 			if err != nil {
 				fmt.Println(err)
 				break
 			}
 			fmt.Println("Позиция элемента: ", idx)
+			fmt.Println("Время исполнения: ", elapsed)
 		case "удалить":
 			fmt.Println("Введите элемент для удаления")
 			var element int
 			fmt.Scan(&element)
-			err := arrays.deleteElement(element)
+			elapsed, err := arrays.deleteElement(element)
 			if err != nil {
 				fmt.Println(err)
 				break
 			}
 			fmt.Println(arrays.array)
+			fmt.Println("Время исполнения: ", elapsed)
 		case "вставить":
 			fmt.Println("Введите элемент для вставки")
 			var element int
 			fmt.Scan(&element)
-			err := arrays.insertElement(element)
+			elapsed, err := arrays.insertElement(element)
 			if err != nil {
 				fmt.Println(err)
 				break
 			}
 			fmt.Println(arrays.array)
+			fmt.Println("Время исполнения: ", elapsed)
 		case "закончить":
 			fmt.Println("Конец программы")
 			return

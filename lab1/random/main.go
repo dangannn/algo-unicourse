@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math/rand"
+	"time"
 )
 
 const SIZE = 10
@@ -17,37 +18,50 @@ func (a *ArrayRandom) fillArray() {
 	}
 }
 
-func (a *ArrayRandom) searchElement(element int) (int, error) {
+func (a *ArrayRandom) searchElement(element int) (int, string, error) {
+
+	start := time.Now()
 	for i, v := range a.array {
 		if v == element {
-			return i, nil
+			return i, "", nil
 		}
 	}
-	return -1, fmt.Errorf("в массиве нет такого элемента: %d", element)
+	elapsed := time.Since(start)
+	seconds := elapsed.Milliseconds()
+	secondsString := fmt.Sprintf("%d", seconds)
+	return -1, secondsString, fmt.Errorf("в массиве нет такого элемента: %d", element)
 }
 
-func (a *ArrayRandom) insertElement(idx int, element int) error {
+func (a *ArrayRandom) insertElement(idx int, element int) (string, error) {
+	start := time.Now()
 	if idx < 0 || idx > len(a.array) {
-		return fmt.Errorf("некорректный индекс: %d", idx)
+		return "", fmt.Errorf("некорректный индекс: %d", idx)
 	}
 
 	for i := len(a.array) - 1; i > idx; i-- {
 		a.array[i] = a.array[i-1]
 	}
 	a.array[idx] = element
-	return nil
+	elapsed := time.Since(start)
+	seconds := elapsed.Milliseconds()
+	secondsString := fmt.Sprintf("%d", seconds)
+	return secondsString, nil
 }
 
-func (a *ArrayRandom) deleteElement(element int) error {
-	idx, err := a.searchElement(element)
+func (a *ArrayRandom) deleteElement(element int) (string, error) {
+	start := time.Now()
+	idx, _, err := a.searchElement(element)
 	if err != nil {
-		return err
+		return "", err
 	}
 	for i := idx; i < len(a.array)-1; i++ {
 		a.array[i] = a.array[i+1]
 	}
 	a.array[len(a.array)-1] = 0
-	return nil
+	elapsed := time.Since(start)
+	seconds := elapsed.Milliseconds()
+	secondsString := fmt.Sprintf("%d", seconds)
+	return secondsString, nil
 }
 
 func main() {
@@ -63,22 +77,25 @@ func main() {
 			fmt.Println("Введите элемент для поиска")
 			var element int
 			fmt.Scan(&element)
-			idx, err := arrays.searchElement(element)
+			fmt.Println("Начало исполнения", time.Now())
+			idx, elapsed, err := arrays.searchElement(element)
 			if err != nil {
 				fmt.Println(err)
 				break
 			}
-			fmt.Println("Позиция элемента: ", idx)
+			fmt.Println("Позиция элемента: ", idx, "Конец исполнения:", time.Now())
+			fmt.Println("Время исполнения: ", elapsed)
 		case "удалить":
 			fmt.Println("Введите элемент для удаления")
 			var element int
 			fmt.Scan(&element)
-			err := arrays.deleteElement(element)
+			elapsed, err := arrays.deleteElement(element)
 			if err != nil {
 				fmt.Println(err)
 				break
 			}
 			fmt.Println(arrays.array)
+			fmt.Println("Время исполнения: ", elapsed)
 		case "вставить":
 			fmt.Println("Введите элемент для вставки")
 			var element int
@@ -86,12 +103,13 @@ func main() {
 			fmt.Println("Введите позицию для вставки")
 			var idx int
 			fmt.Scan(&idx)
-			err := arrays.insertElement(idx, element)
+			elapsed, err := arrays.insertElement(idx, element)
 			if err != nil {
 				fmt.Println(err)
 				break
 			}
 			fmt.Println(arrays.array)
+			fmt.Println("Время исполнения: ", elapsed)
 		case "закончить":
 			fmt.Println("Конец программы")
 			return
