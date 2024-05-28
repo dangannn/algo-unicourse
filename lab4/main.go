@@ -464,24 +464,17 @@ func (ll *BidirectionalLinkedList) SelectionSort() {
 func insertionSortList(head *ListNode) *ListNode {
 	dummy := &ListNode{Val: 0}
 	curr := head
-
-	// Проходим по всему списку
 	for curr != nil {
-		// Сохраняем ссылку на следующий узел, так как после вставки текущего узла он будет удален из списка
 		next := curr.Next
-		// Ищем место для вставки текущего узла в отсортированную часть списка
 		prev := dummy
 		for prev.Next != nil && prev.Next.Val < curr.Val {
 			prev = prev.Next
 		}
-		// Вставляем текущий узел в отсортированную часть списка
 		curr.Next = prev.Next
 		prev.Next = curr
-		// Переходим к следующему узлу
 		curr = next
 	}
 
-	// Возвращаем начало отсортированного списка
 	return dummy.Next
 }
 

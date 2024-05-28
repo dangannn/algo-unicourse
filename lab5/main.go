@@ -31,8 +31,6 @@ func deleteNode(root *TreeNode, key int) *TreeNode {
 		return nil
 	}
 	if root.Val == key {
-		// do delete operation
-
 		// case 1: this is a leaf node, directly delete
 		if root.Left == nil && root.Right == nil {
 			return nil
@@ -136,7 +134,6 @@ func printTree(Root *TreeNode) [][]string {
 	c := (cols - 1) / 2
 
 	helper(Root, ans, h, r, c)
-
 	return ans
 }
 
@@ -160,6 +157,7 @@ func main() {
 		fmt.Println(output[i])
 	}
 	deleteNode(tree.Root, 50)
+
 	fmt.Println(strings.Repeat("-", len(output[0])))
 	output = printTree(tree.Root)
 	for i := 0; i < len(output); i++ {

@@ -22,8 +22,11 @@ func (a *ArrayOrdered) fillArray() {
 	copy(a.array[:], tmpArray)
 }
 
-func (a *ArrayOrdered) searchElement(element int) (int, string, error) {
+func (a *ArrayOrdered) searchElement(element int) (int, error) {
 	start := time.Now()
+	defer func() {
+		fmt.Printf("Время: %v\n", time.Since(start))
+	}()
 	l := 0
 	r := len(a.array) - 1
 	mid := 0
@@ -35,18 +38,18 @@ func (a *ArrayOrdered) searchElement(element int) (int, string, error) {
 			l = mid + 1
 		}
 	}
-	elapsed := time.Since(start)
-	seconds := elapsed.Milliseconds()
-	secondsString := fmt.Sprintf("%d", seconds)
 
 	if l != -1 {
-		return l, secondsString, nil
+		return l, nil
 	}
-	return -1, secondsString, fmt.Errorf("в массиве нет такого элемента: %d", element)
+	return -1, fmt.Errorf("в массиве нет такого элемента: %d", element)
 }
 
-func (a *ArrayOrdered) insertElement(element int) (string, error) {
+func (a *ArrayOrdered) insertElement(element int) error {
 	start := time.Now()
+	defer func() {
+		fmt.Printf("Время: %v\n", time.Since(start))
+	}()
 	idx := -1
 	for i := range a.array {
 		if a.array[i] < element {
@@ -57,77 +60,72 @@ func (a *ArrayOrdered) insertElement(element int) (string, error) {
 		}
 	}
 	if idx == -1 {
-		return "", fmt.Errorf("вставка данного элемента невозможна: %d", element)
+		return fmt.Errorf("вставка данного элемента невозможна: %d", element)
 	}
 
 	for i := len(a.array) - 1; i > idx; i-- {
 		a.array[i] = a.array[i-1]
 	}
 	a.array[idx] = element
-	elapsed := time.Since(start)
-	seconds := elapsed.Milliseconds()
-	secondsString := fmt.Sprintf("%d", seconds)
-	return secondsString, nil
+	return nil
 }
 
-func (a *ArrayOrdered) deleteElement(element int) (string, error) {
+func (a *ArrayOrdered) deleteElement(element int) error {
 	start := time.Now()
-	idx, _, err := a.searchElement(element)
+	defer func() {
+		fmt.Printf("Время: %v\n", time.Since(start))
+	}()
+	idx, err := a.searchElement(element)
 	if err != nil {
-		return "", err
+		return err
 	}
 	for i := idx; i < len(a.array)-1; i++ {
 		a.array[i] = a.array[i+1]
 	}
 	a.array[len(a.array)-1] = 0
-	elapsed := time.Since(start)
-	seconds := elapsed.Milliseconds()
-	secondsString := fmt.Sprintf("%d", seconds)
-	return secondsString, nil
+	return nil
 }
+
 func main() {
 	arrays := ArrayOrdered{}
 	arrays.fillArray()
 	fmt.Printf("Массив:%v\n", arrays.array)
 	for {
-		fmt.Println("Введите команду")
-		var command string
+		fmt.Println("1. Найти\n2. Удалить\n3. Вставить\n4. Выйти\nВведите ваш выбор: ")
+		var command int
 		fmt.Scan(&command)
 		switch command {
-		case "найти":
+		case 1:
 			fmt.Println("Введите элемент для поиска")
 			var element int
 			fmt.Scan(&element)
-			idx, elapsed, err := arrays.searchElement(element)
+			idx, err := arrays.searchElement(element)
 			if err != nil {
 				fmt.Println(err)
 				break
 			}
 			fmt.Println("Позиция элемента: ", idx)
-			fmt.Println("Время исполнения: ", elapsed)
-		case "удалить":
+		case 2:
 			fmt.Println("Введите элемент для удаления")
 			var element int
 			fmt.Scan(&element)
-			elapsed, err := arrays.deleteElement(element)
+			err := arrays.deleteElement(element)
 			if err != nil {
 				fmt.Println(err)
 				break
 			}
 			fmt.Println(arrays.array)
-			fmt.Println("Время исполнения: ", elapsed)
-		case "вставить":
+		case 3:
 			fmt.Println("Введите элемент для вставки")
 			var element int
 			fmt.Scan(&element)
-			elapsed, err := arrays.insertElement(element)
+			err := arrays.insertElement(element)
 			if err != nil {
 				fmt.Println(err)
 				break
 			}
 			fmt.Println(arrays.array)
-			fmt.Println("Время исполнения: ", elapsed)
-		case "закончить":
+		case 4:
 			fmt.Println("Конец программы")
 			return
 		default:

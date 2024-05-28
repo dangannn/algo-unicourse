@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 )
 
@@ -19,17 +20,13 @@ func selectionSort(arr []int) {
 	n := len(arr)
 
 	for i := 0; i < n-1; i++ {
-		// Find the minimum element in the unsorted portion
 		minIndex := i
 		for j := i + 1; j < n; j++ {
 			if arr[j] < arr[minIndex] {
 				minIndex = j
 			}
 		}
-
-		// Swap the found minimum element with the first element in the unsorted portion
 		arr[i], arr[minIndex] = arr[minIndex], arr[i]
-		fmt.Println(arr)
 	}
 }
 
@@ -95,14 +92,23 @@ func partition(arr []int, low, high int) int {
 	return i + 1
 }
 
+func fillSliceRandomInts(n int) []int {
+	slice := make([]int, n)
+	for i := 0; i < n; i++ {
+		slice[i] = rand.Int()
+	}
+	return slice
+}
+
 func main() {
-	a := []int{1, 2, 8, 5, 4, 7, 3}
+	//a := []int{1, 2, 8, 5, 4, 7, 3}
+	a := fillSliceRandomInts(100000)
 	start := time.Now()
+	defer func() {
+		fmt.Printf("Время: %v\n", time.Since(start))
+	}()
 	//sortArray(a)
-	elapsed := time.Since(start)
-	seconds := elapsed.Milliseconds()
-	secondsString := fmt.Sprintf("%d", seconds)
 	//BubleSort(a)
 	selectionSort(a)
-	fmt.Println(a, secondsString)
+	//fmt.Println(a, secondsString)
 }
